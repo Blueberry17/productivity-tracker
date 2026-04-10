@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.tracker.controllers.MainController"
+            styleClass="root-pane">
+    <left>
+        <VBox styleClass="sidebar" prefWidth="210">
+            <Label text="Tracker"              styleClass="logo-title"/>
+            <Label text="Personal Informatics" styleClass="logo-subtitle"/>
+
+            <Label text="OVERVIEW"  styleClass="nav-section"/>
+            <Button fx:id="btnDashboard"  text="⊞  Dashboard"   styleClass="nav-btn" onAction="#showDashboard"  maxWidth="Infinity"/>
+            <Button fx:id="btnCalendar"   text="⊟  Calendar"    styleClass="nav-btn" onAction="#showCalendar"   maxWidth="Infinity"/>
+
+            <Label text="TRACKING"  styleClass="nav-section"/>
+            <Button fx:id="btnSleep"      text="◑  Sleep"       styleClass="nav-btn" onAction="#showSleep"      maxWidth="Infinity"/>
+            <Button fx:id="btnScreenTime" text="▣  Screen Time" styleClass="nav-btn" onAction="#showScreenTime" maxWidth="Infinity"/>
+            <Button fx:id="btnHabits"     text="✓  Habits"      styleClass="nav-btn" onAction="#showHabits"     maxWidth="Infinity"/>
+            <Button fx:id="btnPomodoro"   text="◷  Pomodoro"    styleClass="nav-btn" onAction="#showPomodoro"   maxWidth="Infinity"/>
+
+            <Label text="GOALS"     styleClass="nav-section"/>
+            <Button fx:id="btnGoals"      text="◎  My Goals"    styleClass="nav-btn" onAction="#showGoals"      maxWidth="Infinity"/>
+        </VBox>
+    </left>
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content-area"/>
+    </center>
+</BorderPane>

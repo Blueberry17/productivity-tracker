@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.GoalsController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="My Goals" styleClass="page-title"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll">
+        <VBox styleClass="page-body" spacing="16">
+
+            <VBox styleClass="card" spacing="10">
+                <Label text="Add a new goal" styleClass="card-title"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <TextField fx:id="goalNameField"   promptText="Goal name"   prefWidth="200" styleClass="input"/>
+                    <TextField fx:id="goalTargetField" promptText="Target (number)" prefWidth="140" styleClass="input"/>
+                    <TextField fx:id="goalUnitField"   promptText="Unit (e.g. hours)" prefWidth="160" styleClass="input"/>
+                    <Button text="Add goal" onAction="#onAddGoal" styleClass="btn-primary"/>
+                </HBox>
+                <Label fx:id="statusLabel" styleClass="status-ok"/>
+            </VBox>
+
+            <VBox fx:id="goalsContainer" spacing="10"/>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.SleepController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="Sleep Tracker" styleClass="page-title" HBox.hgrow="ALWAYS"/>
+        <Label fx:id="avgLabel" styleClass="badge-blue"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll">
+        <VBox styleClass="page-body" spacing="16">
+
+            <VBox styleClass="card" spacing="12">
+                <Label text="Log tonight's sleep" styleClass="card-title"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Date:" styleClass="form-label"/>
+                    <DatePicker fx:id="datePicker"/>
+                    <Label text="Hours slept:" styleClass="form-label"/>
+                    <TextField fx:id="hoursField" promptText="e.g. 7.5" prefWidth="80" styleClass="input"/>
+                </HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Sleep quality:" styleClass="form-label"/>
+                    <Slider fx:id="qualitySlider" min="1" max="5" value="3"
+                            showTickLabels="true" majorTickUnit="1"
+                            snapToTicks="true" prefWidth="200"/>
+                    <Label fx:id="qualityLabel" text="3 / 5" styleClass="form-label"/>
+                </HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Button text="Log sleep" onAction="#onLogSleep" styleClass="btn-primary"/>
+                    <Label fx:id="statusLabel" styleClass="status-ok"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="card" spacing="8">
+                <Label text="Last 7 nights" styleClass="card-title"/>
+                <BarChart fx:id="sleepChart" prefHeight="240" animated="false">
+                    <xAxis><CategoryAxis/></xAxis>
+                    <yAxis><NumberAxis lowerBound="0" upperBound="12" tickUnit="2" label="Hours"/></yAxis>
+                </BarChart>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

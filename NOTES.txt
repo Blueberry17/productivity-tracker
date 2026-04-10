@@ -1,0 +1,70 @@
+Hi team,
+
+I've built the framework for the app in Java 21 with JavaFX and SQLite.
+It has a sidebar navigation with the following screens, all with UI layouts in place:
+
+  - Dashboard     : Overview panel showing sleep, screen time, productivity and habit stats
+                    with a mini sleep chart and greeting.
+  - Sleep Tracker : Log sleep hours and quality with a bar chart showing the past 7 days.
+  - Screen Time   : Log time by category (Study/Work, Social Media, etc.) with a pie chart.
+  - Habits        : Checklist of daily habits with streak tracking.
+  - Goals         : Progress bars for personal goals (sleep, steps, screen time, etc.).
+  - Pomodoro      : Timer UI (25-minute focus sessions with session dot tracking).
+  - Calendar      : Calendar view for scheduling/reviewing entries.
+
+I've included a pre-built installer for now so you can see what the UI looks like: Tracker.dmg
+
+To install:
+  1. Open Tracker.dmg
+  2. Drag Tracker to your Applications folder
+  3. Run the app
+
+This DMG will only work on macOS
+
+To view on Windows you'll need to run it from source.
+
+Steps:
+
+  1. Install Java 21 (JDK): https://adoptium.net
+  2. Install Maven:          https://maven.apache.org/install.html
+  3. Clone this repo and open a terminal in the project folder
+  4. Run: mvn javafx:run
+
+The UI is built but most screens are showing hardcoded data.
+The backend needs to be wired up throughout.
+
+What needs doing:
+
+  1. DATABASE (DatabaseManager.java is currently empty)
+     - Implement getConnection() and initialise() to set up the SQLite database
+     - Create tables for: sleep logs, screen time logs, habits, goals, pomodoro sessions
+
+  2. SLEEP TRACKER
+     - onLogSleep() is empty - needs to save a record to the database
+     - Chart should load real data from the database instead of hardcoded values
+
+  3. SCREEN TIME
+     - onLog() is empty - needs to save to the database
+     - Pie chart and total label should reflect real logged data
+
+  4. HABITS
+     - onAddHabit() is empty - new habits should persist to the database
+     - Habit list and streak counts should load from the database
+     - Checkbox state changes should be saved
+
+  5. GOALS
+     - onAddGoal() is empty - goals should persist to the database
+     - Progress values should pull from real tracked data
+
+  6. POMODORO TIMER
+     - onStartPause() and onReset() are empty - the timer logic needs implementing
+     - Completed sessions should be recorded
+
+  7. DASHBOARD
+     - All values are currently hardcoded strings
+     - Should pull live summaries from the database once the backend is in place
+
+  8. CALENDAR
+     - Needs to be connected to logged data so entries appear on the correct dates
+
+Let me know if you have any questions.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.PomodoroController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="Pomodoro Timer" styleClass="page-title"/>
+    </HBox>
+
+    <VBox styleClass="page-body" alignment="CENTER" VBox.vgrow="ALWAYS" spacing="0">
+        <VBox styleClass="card,pom-card" alignment="CENTER" spacing="14">
+            <Label fx:id="modeLabel"    styleClass="pom-mode"/>
+            <Label fx:id="timerLabel"   styleClass="pom-timer" text="25:00"/>
+            <HBox fx:id="dotsContainer" spacing="10" alignment="CENTER"/>
+            <Label fx:id="sessionLabel" styleClass="pom-session"/>
+            <HBox spacing="16" alignment="CENTER">
+                <Button fx:id="startPauseBtn" text="Start"
+                        onAction="#onStartPause" styleClass="btn-primary,btn-large"/>
+                <Button text="Reset"
+                        onAction="#onReset"     styleClass="btn-secondary,btn-large"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</VBox>

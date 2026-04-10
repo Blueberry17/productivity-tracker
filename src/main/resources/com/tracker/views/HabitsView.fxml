@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.HabitsController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="Habits" styleClass="page-title"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll">
+        <VBox styleClass="page-body" spacing="16">
+
+            <VBox styleClass="card" spacing="10">
+                <Label text="Add a new habit" styleClass="card-title"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <TextField fx:id="newHabitField"
+                               promptText="e.g. Morning run (30 min)"
+                               prefWidth="320" styleClass="input"/>
+                    <Button text="Add habit" onAction="#onAddHabit" styleClass="btn-primary"/>
+                    <Label fx:id="statusLabel" styleClass="status-ok"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="card" spacing="4">
+                <Label text="Today's habits" styleClass="card-title"/>
+                <VBox fx:id="habitListContainer" spacing="0"/>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

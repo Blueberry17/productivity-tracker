@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# Except these
+!.gitignore
+!src/
+!src/**/
+!src/**/*
+!pom.xml
+!Tracker.dmg

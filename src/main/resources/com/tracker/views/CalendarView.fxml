@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.CalendarController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="Calendar" styleClass="page-title"/>
+    </HBox>
+
+    <StackPane fx:id="calendarContainer" VBox.vgrow="ALWAYS"/>
+</VBox>

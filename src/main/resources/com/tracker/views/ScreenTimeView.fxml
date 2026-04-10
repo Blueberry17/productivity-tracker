@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.ScreenTimeController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <Label text="Screen Time" styleClass="page-title" HBox.hgrow="ALWAYS"/>
+        <Label fx:id="totalLabel"  styleClass="badge-blue"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll">
+        <VBox styleClass="page-body" spacing="16">
+
+            <VBox styleClass="card" spacing="12">
+                <Label text="Log screen time" styleClass="card-title"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Date:"     styleClass="form-label"/>
+                    <DatePicker fx:id="datePicker"/>
+                    <Label text="Category:" styleClass="form-label"/>
+                    <ComboBox fx:id="categoryCombo" prefWidth="200"/>
+                    <Label text="Minutes:"  styleClass="form-label"/>
+                    <TextField fx:id="minutesField" promptText="e.g. 45" prefWidth="80" styleClass="input"/>
+                    <Button text="Log" onAction="#onLog" styleClass="btn-primary"/>
+                </HBox>
+                <Label fx:id="statusLabel" styleClass="status-ok"/>
+            </VBox>
+
+            <VBox styleClass="card" spacing="8">
+                <Label text="Today's breakdown" styleClass="card-title"/>
+                <PieChart fx:id="pieChart" prefHeight="300" animated="false" legendVisible="true"/>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

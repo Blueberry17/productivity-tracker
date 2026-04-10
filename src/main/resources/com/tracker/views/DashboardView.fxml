@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.tracker.controllers.DashboardController"
+      styleClass="page">
+
+    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+        <VBox HBox.hgrow="ALWAYS">
+            <Label fx:id="greetingLabel" styleClass="page-title"/>
+            <Label fx:id="dateLabel"     styleClass="page-subtitle"/>
+        </VBox>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll">
+        <VBox styleClass="page-body" spacing="16">
+
+            <!-- Metric cards row -->
+            <HBox spacing="12">
+                <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label text="Sleep last night"    styleClass="metric-label"/>
+                    <Label fx:id="sleepValue"         styleClass="metric-value"/>
+                    <Label fx:id="sleepSub"           styleClass="metric-sub"/>
+                </VBox>
+                <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label text="Screen time"         styleClass="metric-label"/>
+                    <Label fx:id="screenValue"        styleClass="metric-value"/>
+                    <Label fx:id="screenSub"          styleClass="metric-sub"/>
+                </VBox>
+                <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label text="Productivity"        styleClass="metric-label"/>
+                    <Label fx:id="productivityValue"  styleClass="metric-value"/>
+                    <Label fx:id="productivitySub"    styleClass="metric-sub"/>
+                    <ProgressBar fx:id="productivityBar" maxWidth="Infinity" styleClass="prod-bar"/>
+                </VBox>
+                <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
+                    <Label text="Habits"              styleClass="metric-label"/>
+                    <Label fx:id="habitsValue"        styleClass="metric-value"/>
+                    <Label fx:id="habitsSub"          styleClass="metric-sub"/>
+                </VBox>
+            </HBox>
+
+            <!-- Sleep chart -->
+            <VBox styleClass="card">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Sleep — last 7 days" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="avgLabel" styleClass="badge-blue"/>
+                </HBox>
+                <BarChart fx:id="sleepMiniChart" prefHeight="180" animated="false">
+                    <xAxis><CategoryAxis/></xAxis>
+                    <yAxis><NumberAxis lowerBound="0" upperBound="12" tickUnit="2"/></yAxis>
+                </BarChart>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>
