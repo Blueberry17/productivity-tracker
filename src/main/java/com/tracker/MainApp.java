@@ -1,5 +1,6 @@
 package com.tracker;
 
+import com.tracker.database.DatabaseManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ public class MainApp extends Application {
         stage.setMinHeight(600);
         stage.setScene(scene);
         stage.show();
+        DatabaseManager.initialise();
     }
 
     public static void main(String[] args) {
