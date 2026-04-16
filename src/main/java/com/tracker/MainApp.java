@@ -10,7 +10,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        // TODO (back-end): call DatabaseManager.initialise() here
+        DatabaseManager.initialise();
 
         FXMLLoader loader = new FXMLLoader(
             getClass().getResource("/com/tracker/views/MainView.fxml")
@@ -24,7 +24,6 @@ public class MainApp extends Application {
         stage.setMinHeight(600);
         stage.setScene(scene);
         stage.show();
-        DatabaseManager.initialise();
     }
 
     public static void main(String[] args) {
