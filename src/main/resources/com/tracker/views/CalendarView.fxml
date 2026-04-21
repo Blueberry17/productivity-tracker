@@ -6,8 +6,10 @@
       fx:controller="com.tracker.controllers.CalendarController"
       styleClass="page">
 
-    <HBox styleClass="topbar" alignment="CENTER_LEFT">
+    <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="15">
         <Label text="Calendar" styleClass="page-title"/>
+        <Region HBox.hgrow="ALWAYS" /> 
+        <Button text="+ Add Task" styleClass="btn-primary" onAction="#handleAddTask"/>
     </HBox>
 
     <StackPane fx:id="calendarContainer" VBox.vgrow="ALWAYS"/>

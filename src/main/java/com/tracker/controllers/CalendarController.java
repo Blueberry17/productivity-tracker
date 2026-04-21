@@ -4,82 +4,120 @@ import com.calendarfx.model.Calendar;
 import com.calendarfx.model.CalendarSource;
 import com.calendarfx.model.Entry;
 import com.calendarfx.view.CalendarView;
+import com.tracker.database.DatabaseManager;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.StackPane;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 
 public class CalendarController {
 
     @FXML private StackPane calendarContainer;
+    
+    private CalendarView calendarView; 
+    
+    // Fix 1: Added <String> parameter here
+    private Calendar<String> personalCalendar;
 
     @FXML
     public void initialize() {
-        Calendar health  = new Calendar("Health & Fitness");
-        Calendar study   = new Calendar("Study");
-        Calendar personal = new Calendar("Personal");
+        // Fix 2: Added <String> to the Calendar declarations and the generic <> to the constructors
+        Calendar<String> health   = new Calendar<>("Health & Fitness");
+        Calendar<String> study    = new Calendar<>("Study");
+        personalCalendar = new Calendar<>("Personal");
 
         health.setStyle(Calendar.Style.STYLE1);
         study.setStyle(Calendar.Style.STYLE2);
-        personal.setStyle(Calendar.Style.STYLE3);
+        personalCalendar.setStyle(Calendar.Style.STYLE3);
 
-        addEntries(health, study, personal);
+        // Fetch data directly from the DatabaseManager
+        loadDatabaseEntries(health, study, personalCalendar);
 
         CalendarSource source = new CalendarSource("Tracker");
-        source.getCalendars().addAll(health, study, personal);
+        source.getCalendars().addAll(health, study, personalCalendar);
 
-        CalendarView calendarView = new CalendarView();
+        calendarView = new CalendarView();
         calendarView.getCalendarSources().setAll(source);
-        calendarView.setToday(LocalDate.of(2026, 4, 9));
+        
+        // Sets today to current date so it opens on the right month
+        calendarView.setToday(LocalDate.now());
         calendarView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         calendarView.showMonthPage();
 
         calendarContainer.getChildren().add(calendarView);
     }
+    
+    // Fix 3: Added <String> parameters to the method signature
+    private void loadDatabaseEntries(Calendar<String> health, Calendar<String> study, Calendar<String> personal) {
+        // We use try-with-resources to ensure the connection closes automatically
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement()) {
 
-    private void addEntries(Calendar health, Calendar study, Calendar personal) {
-        LocalDate base = LocalDate.of(2026, 4, 1);
+            // 1. Fetch Sleep Data -> Health Calendar
+            ResultSet sleepRs = stmt.executeQuery("SELECT entryDate, duration_hrs FROM Sleep");
+            while (sleepRs.next()) {
+                String dateStr = sleepRs.getString("entryDate");
+                double duration = sleepRs.getDouble("duration_hrs");
+                
+                Entry<String> entry = createFullDayEntry("Sleep: " + duration + "h", dateStr);
+                if (entry != null) health.addEntry(entry);
+            }
+            sleepRs.close();
 
-        // Health & Fitness entries
-        health.addEntry(entry("Morning Run",    base.plusDays(0),  time(7, 0),  time(7, 30)));
-        health.addEntry(entry("Gym Session",    base.plusDays(1),  time(8, 0),  time(9, 0)));
-        health.addEntry(entry("Morning Run",    base.plusDays(2),  time(7, 0),  time(7, 30)));
-        health.addEntry(entry("Yoga",           base.plusDays(3),  time(7, 30), time(8, 15)));
-        health.addEntry(entry("Morning Run",    base.plusDays(6),  time(7, 0),  time(7, 30)));
-        health.addEntry(entry("Gym Session",    base.plusDays(7),  time(8, 0),  time(9, 0)));
-        health.addEntry(entry("Morning Run",    base.plusDays(8),  time(7, 0),  time(7, 30)));
-        health.addEntry(entry("Gym Session",    base.plusDays(10), time(8, 0),  time(9, 0)));
-        health.addEntry(entry("Morning Run",    base.plusDays(13), time(7, 0),  time(7, 30)));
-        health.addEntry(entry("Gym Session",    base.plusDays(14), time(8, 0),  time(9, 0)));
+            // 2. Fetch Pomodoro Data -> Study Calendar
+            ResultSet pomRs = stmt.executeQuery("SELECT entryDate, isCompleted FROM Pomodoro WHERE isCompleted = 1");
+            while (pomRs.next()) {
+                String dateStr = pomRs.getString("entryDate");
+                Entry<String> entry = createFullDayEntry("Pomodoro Completed", dateStr);
+                if (entry != null) study.addEntry(entry);
+            }
+            pomRs.close();
 
-        // Study entries
-        study.addEntry(entry("Study Session",   base.plusDays(0),  time(14, 0), time(16, 0)));
-        study.addEntry(entry("Study Session",   base.plusDays(2),  time(15, 0), time(17, 0)));
-        study.addEntry(entry("Study Group",     base.plusDays(3),  time(13, 0), time(15, 0)));
-        study.addEntry(entry("Revision Block",  base.plusDays(5),  time(10, 0), time(12, 0)));
-        study.addEntry(entry("Assignment Due",  base.plusDays(6),  time(23, 59), time(23, 59)));
-        study.addEntry(entry("Study Session",   base.plusDays(8),  time(14, 0), time(16, 0)));
-        study.addEntry(entry("Study Group",     base.plusDays(10), time(13, 0), time(15, 0)));
-        study.addEntry(entry("Exam Prep",       base.plusDays(12), time(9, 0),  time(12, 0)));
-        study.addEntry(entry("Exam Prep",       base.plusDays(13), time(9, 0),  time(12, 0)));
+            // 3. Fetch Screen Time Data -> Personal Calendar
+            ResultSet screenRs = stmt.executeQuery("SELECT entryDate, category, duration_mins FROM ScreenTime");
+            while (screenRs.next()) {
+                String dateStr = screenRs.getString("entryDate");
+                String category = screenRs.getString("category");
+                int duration = screenRs.getInt("duration_mins");
+                
+                Entry<String> entry = createFullDayEntry("Screen (" + category + "): " + duration + "m", dateStr);
+                if (entry != null) personal.addEntry(entry);
+            }
+            screenRs.close();
 
-        // Personal entries
-        personal.addEntry(entry("Team Meeting",      base.plusDays(1),  time(10, 0), time(11, 0)));
-        personal.addEntry(entry("Doctor Appointment",base.plusDays(2),  time(11, 0), time(11, 30)));
-        personal.addEntry(entry("Team Meeting",      base.plusDays(8),  time(10, 0), time(11, 0)));
-        personal.addEntry(entry("Dentist",           base.plusDays(9),  time(9, 0),  time(9, 30)));
-        personal.addEntry(entry("Team Meeting",      base.plusDays(15), time(10, 0), time(11, 0)));
-        personal.addEntry(entry("Birthday Dinner",   base.plusDays(11), time(19, 0), time(21, 0)));
+        } catch (SQLException e) {
+            System.err.println("Database error loading calendar entries: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    private Entry<String> entry(String title, LocalDate date, LocalTime start, LocalTime end) {
-        Entry<String> e = new Entry<>(title);
-        e.setInterval(date.atTime(start), date.atTime(end));
-        return e;
+    /**
+     * Helper method to parse the DB text date and create a CalendarFX Full-Day entry.
+     * Assumes entryDate in DB is saved in "YYYY-MM-DD" format.
+     */
+    private Entry<String> createFullDayEntry(String title, String dateString) {
+        try {
+            LocalDate date = LocalDate.parse(dateString);
+            Entry<String> entry = new Entry<>(title);
+            entry.changeStartDate(date);
+            entry.changeEndDate(date);
+            entry.setFullDay(true);
+            return entry;
+        } catch (DateTimeParseException | NullPointerException e) {
+            System.err.println("Could not parse date from DB: " + dateString);
+            return null;
+        }
     }
-
-    private LocalTime time(int hour, int minute) {
-        return LocalTime.of(hour, minute);
+    
+    @FXML
+    private void handleAddTask(ActionEvent event) {
+        calendarView.createEntryAt(ZonedDateTime.now(), personalCalendar);
     }
 }
