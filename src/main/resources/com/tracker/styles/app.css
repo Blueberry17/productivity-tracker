@@ -424,9 +424,9 @@
 }
 
 .dot-empty {
-    -fx-fill: #2e3247;
+    -fx-fill: transparent;
     -fx-stroke: #555972;
-    -fx-stroke-width: 1;
+    -fx-stroke-width: 2;
 }
 
 /* ── Habits ────────────────────────────────────── */

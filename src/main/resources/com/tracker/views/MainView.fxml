@@ -7,7 +7,7 @@
             styleClass="root-pane">
     <left>
         <VBox styleClass="sidebar" prefWidth="210">
-            <Label text="Tracker"              styleClass="logo-title"/>
+            <Label text="Tracklytics"              styleClass="logo-title"/>
             <Label text="Personal Informatics" styleClass="logo-subtitle"/>
 
             <Label text="OVERVIEW"  styleClass="nav-section"/>

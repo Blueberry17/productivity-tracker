@@ -63,9 +63,17 @@ public class SleepController {
         }
         avgLabel.setText(String.format("7-day avg: %.1fh", avg));
 
+        java.time.format.DateTimeFormatter displayFmt = java.time.format.DateTimeFormatter.ofPattern("d MMM");
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (int i = 0; i < index; i++)
-            series.getData().add(new XYChart.Data<>(days[i], hours[i]));
+        for (int i = 0; i < index; i++) {
+            String label;
+            try {
+                label = LocalDate.parse(days[i]).format(displayFmt);
+            } catch (Exception ex) {
+                label = days[i];
+            }
+            series.getData().add(new XYChart.Data<>(label, hours[i]));
+        }
 
         sleepChart.setAnimated(false);
         sleepChart.setLegendVisible(false);
@@ -78,7 +86,7 @@ public class SleepController {
         LocalDate date = datePicker.getValue();
         double hours = Double.parseDouble(hoursField.getText().trim());
         int quality = (int) qualitySlider.getValue();
-        String dateStr = date.format(java.time.format.DateTimeFormatter.ofPattern("d MMM"));
+        String dateStr = date.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE);
 
         try (Connection conn = DatabaseManager.getConnection()) {
 

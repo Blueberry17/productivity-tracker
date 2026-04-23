@@ -33,7 +33,6 @@
                     <Label text="Productivity"        styleClass="metric-label"/>
                     <Label fx:id="productivityValue"  styleClass="metric-value"/>
                     <Label fx:id="productivitySub"    styleClass="metric-sub"/>
-                    <ProgressBar fx:id="productivityBar" maxWidth="Infinity" styleClass="prod-bar"/>
                 </VBox>
                 <VBox styleClass="metric-card" HBox.hgrow="ALWAYS">
                     <Label text="Habits"              styleClass="metric-label"/>

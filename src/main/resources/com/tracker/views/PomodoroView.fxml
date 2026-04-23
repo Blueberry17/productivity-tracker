@@ -16,6 +16,19 @@
             <Label fx:id="timerLabel"   styleClass="pom-timer" text="25:00"/>
             <HBox fx:id="dotsContainer" spacing="10" alignment="CENTER"/>
             <Label fx:id="sessionLabel" styleClass="pom-session"/>
+
+            <HBox spacing="10" alignment="CENTER">
+                <VBox spacing="4">
+                    <Label text="Work (min)" styleClass="metric-label"/>
+                    <TextField fx:id="workInput" prefWidth="70" promptText="25" styleClass="input"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Break (min)" styleClass="metric-label"/>
+                    <TextField fx:id="breakInput" prefWidth="70" promptText="5" styleClass="input"/>
+                </VBox>
+            </HBox>
+            <Button text="Update Intervals" onAction="#onChangeTime" styleClass="btn-secondary"/>
+
             <HBox spacing="16" alignment="CENTER">
                 <Button fx:id="startPauseBtn" text="Start"
                         onAction="#onStartPause" styleClass="btn-primary,btn-large"/>

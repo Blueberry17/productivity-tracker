@@ -19,45 +19,46 @@ public class DatabaseManager {
 
     // Initialise database (create tables)
     public static void initialise() {
-        String sql =
-                //create Sleep table
-                "CREATE TABLE IF NOT EXISTS Sleep (" +
+        String[] statements = {
+            "CREATE TABLE IF NOT EXISTS Sleep (" +
                 "entryID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-                "entryDate TEXT NOT NULL," + //no specific DATE data type in SQLite, but TEXT is compatible with date methods
+                "entryDate TEXT NOT NULL," +
                 "duration_hrs REAL NOT NULL," +
-                "quality INTEGER NOT NULL);" +
+                "quality INTEGER NOT NULL)",
 
-                //create Screen time table
-                "CREATE TABLE IF NOT EXISTS ScreenTime (" +
+            "CREATE TABLE IF NOT EXISTS ScreenTime (" +
                 "entryID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                 "entryDate TEXT NOT NULL," +
                 "category TEXT NOT NULL," +
-                "duration_mins INTEGER NOT NULL);" +
+                "duration_mins INTEGER NOT NULL)",
 
-                //create Habits table
-                "CREATE TABLE IF NOT EXISTS Habits (" +
-                "habitID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+            "CREATE TABLE IF NOT EXISTS Habits (" +
+                "habitID INTEGER NO" +
+                    "T NULL PRIMARY KEY AUTOINCREMENT, " +
                 "habitName TEXT NOT NULL," +
                 "streak_days INTEGER NOT NULL, " +
-                "isCompleted INTEGER NOT NULL);" +  //no BOOLEAN data type, but 0/1 recommended by documentation
+                "isCompleted INTEGER NOT NULL)",
 
-                //create Goals table
-                "CREATE TABLE IF NOT EXISTS Goals (" +
+            "CREATE TABLE IF NOT EXISTS Goals (" +
                 "goalID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                 "goalName TEXT NOT NULL," +
                 "unit TEXT NOT NULL," +
-                "target INTEGER NOT NULL);" +
+                "target REAL NOT NULL," +
+                "current REAL DEFAULT 0)",
 
-                "CREATE TABLE IF NOT EXISTS Pomodoro (" +
+            "CREATE TABLE IF NOT EXISTS Pomodoro (" +
                 "entryID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                 "entryDate TEXT NOT NULL," +
                 "isCompleted INTEGER NOT NULL," +
-                "durationRemaining TEXT NOT NULL);";
+                "durationRemaining TEXT NOT NULL)"
+        };
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
-            stmt.execute(sql);
+            for (String sql : statements) {
+                stmt.execute(sql);
+            }
             System.out.println("Database initialised.");
 
         } catch (SQLException e) {
@@ -89,9 +90,11 @@ public class DatabaseManager {
              ResultSet rs = ps.executeQuery()) {
             LocalDate today = LocalDate.now();
             while (rs.next()) {
-                LocalDate date = LocalDate.parse(rs.getString(1), DateTimeFormatter.ISO_LOCAL_DATE);
-                int idx = (int) (today.toEpochDay() - date.toEpochDay());
-                if (idx >= 0 && idx < 7) hours[6 - idx] = rs.getDouble(2);
+                try {
+                    LocalDate date = LocalDate.parse(rs.getString(1), DateTimeFormatter.ISO_LOCAL_DATE);
+                    int idx = (int) (today.toEpochDay() - date.toEpochDay());
+                    if (idx >= 0 && idx < 7) hours[6 - idx] = rs.getDouble(2);
+                } catch (java.time.format.DateTimeParseException ignored) {}
             }
         } catch (SQLException e) {
             e.printStackTrace();

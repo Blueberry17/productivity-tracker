@@ -19,7 +19,7 @@ public class MainApp extends Application {
         scene.getStylesheets().add(
             getClass().getResource("/com/tracker/styles/app.css").toExternalForm()
         );
-        stage.setTitle("Tracker");
+        stage.setTitle("Tracklytics");
         stage.setMinWidth(900);
         stage.setMinHeight(600);
         stage.setScene(scene);

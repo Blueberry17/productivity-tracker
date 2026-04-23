@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,7 +26,6 @@ public class DashboardController {
     @FXML private Label avgLabel;
 
     @FXML private BarChart<String, Number> sleepMiniChart;
-    @FXML private ProgressBar productivityBar;
 
     @FXML
     public void initialize() {
@@ -121,19 +119,15 @@ public class DashboardController {
 
     private void loadProductivity() {
         int[] pomo = DatabaseManager.getPomodoroSummaryToday();
-        int done = pomo[0], total = pomo[1];
+        int done = pomo[0];
 
-        if (total == 0) {
+        if (done == 0) {
             productivityValue.setText("—");
             productivitySub.setText("No sessions today");
-            productivityBar.setProgress(0);
         } else {
-            double ratio = (double) done / total;
-            int pct = (int) Math.round(ratio * 100);
-            productivityValue.setText(pct + "%");
-            productivitySub.setText(done + " of " + total + " sessions done");
-            productivitySub.getStyleClass().add(pct >= 50 ? "good" : "warn");
-            productivityBar.setProgress(ratio);
+            productivityValue.setText(String.valueOf(done));
+            productivitySub.setText(done == 1 ? "focus session today" : "focus sessions today");
+            productivitySub.getStyleClass().add("good");
         }
     }
 }
