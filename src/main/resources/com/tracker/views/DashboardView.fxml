@@ -53,6 +53,21 @@
                 </BarChart>
             </VBox>
 
+            <!-- Cross-metric trends chart -->
+            <VBox styleClass="card">
+                <Label text="Sleep, Screen Time &amp; Quality — last 7 days" styleClass="card-title"/>
+                <LineChart fx:id="trendsChart" prefHeight="220" animated="false">
+                    <xAxis><CategoryAxis/></xAxis>
+                    <yAxis><NumberAxis lowerBound="0" upperBound="12" tickUnit="2" label="Hours / Quality"/></yAxis>
+                </LineChart>
+            </VBox>
+
+            <!-- Weekly insights -->
+            <VBox styleClass="card" spacing="8">
+                <Label text="Weekly insights" styleClass="card-title"/>
+                <VBox fx:id="insightsContainer" spacing="6"/>
+            </VBox>
+
         </VBox>
     </ScrollPane>
 </VBox>

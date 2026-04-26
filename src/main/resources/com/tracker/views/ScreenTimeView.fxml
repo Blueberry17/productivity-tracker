@@ -34,6 +34,14 @@
                 <PieChart fx:id="pieChart" prefHeight="300" animated="false" legendVisible="true"/>
             </VBox>
 
+            <VBox styleClass="card" spacing="8">
+                <Label text="Screen time — last 7 days (mins)" styleClass="card-title"/>
+                <BarChart fx:id="weekChart" prefHeight="200" animated="false">
+                    <xAxis><CategoryAxis/></xAxis>
+                    <yAxis><NumberAxis lowerBound="0"/></yAxis>
+                </BarChart>
+            </VBox>
+
         </VBox>
     </ScrollPane>
 </VBox>

@@ -24,6 +24,20 @@
                 <Label fx:id="statusLabel" styleClass="status-ok"/>
             </VBox>
 
+            <VBox styleClass="card" spacing="10">
+                <Label text="Daily targets" styleClass="card-title"/>
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Sleep goal:" styleClass="form-label"/>
+                    <TextField fx:id="sleepTargetField" promptText="e.g. 8" prefWidth="70" styleClass="input"/>
+                    <Label text="hrs" styleClass="form-label"/>
+                    <Label text="Screen time limit:" styleClass="form-label"/>
+                    <TextField fx:id="screenTargetField" promptText="e.g. 240" prefWidth="70" styleClass="input"/>
+                    <Label text="mins" styleClass="form-label"/>
+                    <Button text="Save" onAction="#onSaveDailyTargets" styleClass="btn-primary"/>
+                </HBox>
+                <Label fx:id="targetsStatusLabel" styleClass="status-ok"/>
+            </VBox>
+
             <VBox fx:id="goalsContainer" spacing="10"/>
 
         </VBox>

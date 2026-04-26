@@ -2,7 +2,9 @@ package com.tracker.controllers;
 
 import com.tracker.database.DatabaseManager;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 public class ScreenTimeController {
 
     @FXML private PieChart pieChart;
+    @FXML private BarChart<String, Number> weekChart;
     @FXML private DatePicker datePicker;
     @FXML private ComboBox<String> categoryCombo;
     @FXML private TextField minutesField;
@@ -37,6 +40,7 @@ public class ScreenTimeController {
         pieChart.setAnimated(false);
         datePicker.valueProperty().addListener((obs, oldVal, newVal) -> refreshChart());
         refreshChart();
+        loadWeekChart();
     }
 
     private void refreshChart() {
@@ -66,7 +70,7 @@ public class ScreenTimeController {
         }
 
         int hours = totalMins / 60;
-        int mins = totalMins % 60;
+        int mins  = totalMins % 60;
         if (totalMins == 0) {
             totalLabel.setText("No entries for this date");
         } else if (hours > 0) {
@@ -74,6 +78,23 @@ public class ScreenTimeController {
         } else {
             totalLabel.setText(mins + "m total");
         }
+    }
+
+    private void loadWeekChart() {
+        int[] data = DatabaseManager.getScreenTimeLast7Days();
+        weekChart.getData().clear();
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEE");
+        for (int i = 0; i < 7; i++) {
+            String label = today.minusDays(6 - i).format(fmt);
+            series.getData().add(new XYChart.Data<>(label, data[i]));
+        }
+
+        weekChart.setAnimated(false);
+        weekChart.setLegendVisible(false);
+        weekChart.getData().add(series);
     }
 
     @FXML
@@ -98,7 +119,7 @@ public class ScreenTimeController {
         }
 
         String category = categoryCombo.getValue();
-        String dateStr = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String dateStr  = date.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         String sql = "INSERT INTO ScreenTime (entryDate, category, duration_mins) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
@@ -112,6 +133,7 @@ public class ScreenTimeController {
             statusLabel.setText("Logged " + minutes + " min of " + category + ".");
             statusLabel.setStyle("-fx-text-fill: #27ae60;");
             refreshChart();
+            loadWeekChart();
         } catch (SQLException e) {
             e.printStackTrace();
             statusLabel.setText("Error saving entry.");

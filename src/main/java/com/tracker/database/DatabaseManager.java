@@ -9,15 +9,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class DatabaseManager {
-    // TODO (back-end): implement getConnection() and initialise()
     private static final String URL = "jdbc:sqlite:tracker.db";
 
-    // Get a connection to the database
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL);
     }
 
-    // Initialise database (create tables)
     public static void initialise() {
         String[] statements = {
             "CREATE TABLE IF NOT EXISTS Sleep (" +
@@ -33,11 +30,11 @@ public class DatabaseManager {
                 "duration_mins INTEGER NOT NULL)",
 
             "CREATE TABLE IF NOT EXISTS Habits (" +
-                "habitID INTEGER NO" +
-                    "T NULL PRIMARY KEY AUTOINCREMENT, " +
+                "habitID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                 "habitName TEXT NOT NULL," +
-                "streak_days INTEGER NOT NULL, " +
-                "isCompleted INTEGER NOT NULL)",
+                "streak_days INTEGER NOT NULL," +
+                "isCompleted INTEGER NOT NULL," +
+                "lastCheckedDate TEXT)",
 
             "CREATE TABLE IF NOT EXISTS Goals (" +
                 "goalID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
@@ -50,17 +47,62 @@ public class DatabaseManager {
                 "entryID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
                 "entryDate TEXT NOT NULL," +
                 "isCompleted INTEGER NOT NULL," +
-                "durationRemaining TEXT NOT NULL)"
+                "durationRemaining TEXT NOT NULL)",
+
+            "CREATE TABLE IF NOT EXISTS DailyTargets (" +
+                "metricName TEXT NOT NULL PRIMARY KEY," +
+                "targetValue REAL NOT NULL)"
         };
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
-
             for (String sql : statements) {
                 stmt.execute(sql);
             }
             System.out.println("Database initialised.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        seedDailyTargets();
+    }
+
+    private static void seedDailyTargets() {
+        String sql = "INSERT OR IGNORE INTO DailyTargets (metricName, targetValue) VALUES (?, ?)";
+        String[][] defaults = {{"sleep_hours", "8.0"}, {"screen_time_mins", "240"}};
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (String[] d : defaults) {
+                ps.setString(1, d[0]);
+                ps.setDouble(2, Double.parseDouble(d[1]));
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static double getDailyTarget(String metricName, double defaultValue) {
+        String sql = "SELECT targetValue FROM DailyTargets WHERE metricName = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, metricName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return defaultValue;
+    }
+
+    public static void setDailyTarget(String metricName, double value) {
+        String sql = "INSERT OR REPLACE INTO DailyTargets (metricName, targetValue) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, metricName);
+            ps.setDouble(2, value);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,7 +121,7 @@ public class DatabaseManager {
         return -1;
     }
 
-    // Sleep hours for each of the last 7 days (index 0 = 6 days ago, index 6 = today). Days with no entry are 0.
+    // Sleep hours for each of the last 7 days (index 0 = 6 days ago, index 6 = today).
     public static double[] getSleepLast7Days() {
         double[] hours = new double[7];
         String sql = "SELECT entryDate, SUM(duration_hrs) FROM Sleep " +
@@ -100,6 +142,29 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return hours;
+    }
+
+    // Screen time in minutes for each of the last 7 days (index 0 = 6 days ago, index 6 = today).
+    public static int[] getScreenTimeLast7Days() {
+        int[] mins = new int[7];
+        String sql = "SELECT entryDate, SUM(duration_mins) FROM ScreenTime " +
+                     "WHERE entryDate >= date('now','localtime','-6 days') " +
+                     "GROUP BY entryDate ORDER BY entryDate ASC";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            LocalDate today = LocalDate.now();
+            while (rs.next()) {
+                try {
+                    LocalDate date = LocalDate.parse(rs.getString(1), DateTimeFormatter.ISO_LOCAL_DATE);
+                    int idx = (int) (today.toEpochDay() - date.toEpochDay());
+                    if (idx >= 0 && idx < 7) mins[6 - idx] = rs.getInt(2);
+                } catch (java.time.format.DateTimeParseException ignored) {}
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mins;
     }
 
     // Total screen time logged today, in minutes.
@@ -134,6 +199,109 @@ public class DatabaseManager {
             e.printStackTrace();
         }
         return new int[]{done, total};
+    }
+
+    // Sleep quality (1-5) for each of the last 7 days (0 where no entry).
+    public static double[] getQualityLast7Days() {
+        double[] quality = new double[7];
+        String sql = "SELECT entryDate, AVG(quality) FROM Sleep " +
+                     "WHERE entryDate >= date('now','localtime','-6 days') " +
+                     "GROUP BY entryDate ORDER BY entryDate ASC";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            LocalDate today = LocalDate.now();
+            while (rs.next()) {
+                try {
+                    LocalDate date = LocalDate.parse(rs.getString(1), DateTimeFormatter.ISO_LOCAL_DATE);
+                    int idx = (int) (today.toEpochDay() - date.toEpochDay());
+                    if (idx >= 0 && idx < 7) quality[6 - idx] = rs.getDouble(2);
+                } catch (java.time.format.DateTimeParseException ignored) {}
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return quality;
+    }
+
+    // Pomodoro sessions completed for each of the last 7 days.
+    public static int[] getPomodoroLast7Days() {
+        int[] sessions = new int[7];
+        String sql = "SELECT entryDate, COUNT(*) FROM Pomodoro " +
+                     "WHERE entryDate >= date('now','localtime','-6 days') AND isCompleted = 1 " +
+                     "GROUP BY entryDate ORDER BY entryDate ASC";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            LocalDate today = LocalDate.now();
+            while (rs.next()) {
+                try {
+                    LocalDate date = LocalDate.parse(rs.getString(1), DateTimeFormatter.ISO_LOCAL_DATE);
+                    int idx = (int) (today.toEpochDay() - date.toEpochDay());
+                    if (idx >= 0 && idx < 7) sessions[6 - idx] = rs.getInt(2);
+                } catch (java.time.format.DateTimeParseException ignored) {}
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sessions;
+    }
+
+    // Returns [thisWeekAvgHrs, lastWeekAvgHrs] for sleep duration. 0 if no data.
+    public static double[] getSleepWeekComparison() {
+        String thisWeek = "SELECT AVG(duration_hrs) FROM Sleep " +
+                          "WHERE entryDate >= date('now','localtime','-6 days')";
+        String lastWeek = "SELECT AVG(duration_hrs) FROM Sleep " +
+                          "WHERE entryDate >= date('now','localtime','-13 days') " +
+                          "AND entryDate < date('now','localtime','-6 days')";
+        return queryTwoWeeks(thisWeek, lastWeek);
+    }
+
+    // Returns [thisWeekTotalMins, lastWeekTotalMins] for screen time. 0 if no data.
+    public static double[] getScreenTimeWeekComparison() {
+        String thisWeek = "SELECT COALESCE(SUM(duration_mins), 0) FROM ScreenTime " +
+                          "WHERE entryDate >= date('now','localtime','-6 days')";
+        String lastWeek = "SELECT COALESCE(SUM(duration_mins), 0) FROM ScreenTime " +
+                          "WHERE entryDate >= date('now','localtime','-13 days') " +
+                          "AND entryDate < date('now','localtime','-6 days')";
+        return queryTwoWeeks(thisWeek, lastWeek);
+    }
+
+    // Returns [thisWeekAvgQuality, lastWeekAvgQuality]. 0 if no data.
+    public static double[] getSleepQualityWeekComparison() {
+        String thisWeek = "SELECT AVG(quality) FROM Sleep " +
+                          "WHERE entryDate >= date('now','localtime','-6 days')";
+        String lastWeek = "SELECT AVG(quality) FROM Sleep " +
+                          "WHERE entryDate >= date('now','localtime','-13 days') " +
+                          "AND entryDate < date('now','localtime','-6 days')";
+        return queryTwoWeeks(thisWeek, lastWeek);
+    }
+
+    // Returns [thisWeekCount, lastWeekCount] for completed Pomodoro sessions.
+    public static double[] getPomodoroWeekComparison() {
+        String thisWeek = "SELECT COUNT(*) FROM Pomodoro " +
+                          "WHERE entryDate >= date('now','localtime','-6 days') AND isCompleted = 1";
+        String lastWeek = "SELECT COUNT(*) FROM Pomodoro " +
+                          "WHERE entryDate >= date('now','localtime','-13 days') " +
+                          "AND entryDate < date('now','localtime','-6 days') AND isCompleted = 1";
+        return queryTwoWeeks(thisWeek, lastWeek);
+    }
+
+    private static double[] queryTwoWeeks(String thisWeekSql, String lastWeekSql) {
+        double[] result = new double[2];
+        try (Connection conn = getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(thisWeekSql);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) result[0] = rs.getDouble(1);
+            }
+            try (PreparedStatement ps = conn.prepareStatement(lastWeekSql);
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) result[1] = rs.getDouble(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     // Returns {completed, total} pomodoro session counts for today.

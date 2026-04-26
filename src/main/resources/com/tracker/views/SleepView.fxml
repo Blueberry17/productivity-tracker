@@ -37,11 +37,19 @@
             </VBox>
 
             <VBox styleClass="card" spacing="8">
-                <Label text="Last 7 nights" styleClass="card-title"/>
-                <BarChart fx:id="sleepChart" prefHeight="240" animated="false">
+                <Label text="Sleep duration — last 7 nights" styleClass="card-title"/>
+                <BarChart fx:id="sleepChart" prefHeight="220" animated="false">
                     <xAxis><CategoryAxis/></xAxis>
                     <yAxis><NumberAxis lowerBound="0" upperBound="12" tickUnit="2" label="Hours"/></yAxis>
                 </BarChart>
+            </VBox>
+
+            <VBox styleClass="card" spacing="8">
+                <Label text="Sleep quality — last 7 nights (1–5)" styleClass="card-title"/>
+                <LineChart fx:id="qualityChart" prefHeight="200" animated="false">
+                    <xAxis><CategoryAxis/></xAxis>
+                    <yAxis><NumberAxis lowerBound="1" upperBound="5" tickUnit="1" label="Quality"/></yAxis>
+                </LineChart>
             </VBox>
 
         </VBox>

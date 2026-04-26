@@ -5,6 +5,8 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,6 +17,8 @@ import javafx.util.Duration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class PomodoroController {
 
@@ -25,6 +29,7 @@ public class PomodoroController {
     @FXML private HBox dotsContainer;
     @FXML private TextField workInput;
     @FXML private TextField breakInput;
+    @FXML private BarChart<String, Number> weekChart;
 
     private Timeline timeline;
     private int currentSecondsLeft;
@@ -45,6 +50,7 @@ public class PomodoroController {
         modeLabel.setText("Focus session");
         updateSessionLabel();
         buildDots();
+        loadWeekChart();
     }
 
     private int loadTodayCount() {
@@ -156,6 +162,21 @@ public class PomodoroController {
         saveCompletedSession();
     }
 
+    private void loadWeekChart() {
+        int[] data = DatabaseManager.getPomodoroLast7Days();
+        weekChart.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEE");
+        for (int i = 0; i < 7; i++) {
+            String label = today.minusDays(6 - i).format(fmt);
+            series.getData().add(new XYChart.Data<>(label, data[i]));
+        }
+        weekChart.setAnimated(false);
+        weekChart.setLegendVisible(false);
+        weekChart.getData().add(series);
+    }
+
     private void saveCompletedSession() {
         String sql = "INSERT INTO Pomodoro (entryDate, isCompleted, durationRemaining) " +
                      "VALUES (date('now','localtime'), 1, '00:00')";
@@ -165,6 +186,7 @@ public class PomodoroController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        loadWeekChart();
     }
 
     private void buildDots() {
